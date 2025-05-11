@@ -38,9 +38,15 @@ The application uses a cache-aside (lazy loading) strategy:
 
 ### Prerequisites
 
-- Node.js (v14+)
-- Redis server
-- PostgreSQL server
+- Git 
+- Terraform 
+- Minikube
+- Jenkins
+- Helm
+- Kubectl
+- Docker
+- curl(testing purposes)
+- Programming Language
 
 ### Installation
 
@@ -68,6 +74,31 @@ The application uses a cache-aside (lazy loading) strategy:
    ```
    npm run dev
    ```
+
+## How to Test Application
+To shorten a URL, send a POST request to /api/urls endpoint:
+Using curl:
+curl -X POST http://localhost:3000/api/urls \
+  -H "Content-Type: application/json" \
+  -d '{"originalUrl": "https://example.com/long-url-to-shorten"}'
+Using Postman or any API client:
+Set method to POST
+Set URL to http://localhost:3000/api/urls
+Add header: Content-Type: application/json
+Set request body (JSON)
+
+{
+  "originalUrl": "https://example.com/long-url-to-shorten",
+  "expiresAt": "2023-12-31T23:59:59Z" // optional
+}
+
+## Future Works
+Redis caching strategy:
+Current implementation assumes single Redis instance
+Might need adjustment for Redis Sentinel or cluster deployments
+High availability considerations:
+The app can horizontally scale (it's stateless)
+Database connections have pooling but may need tuning for your scale
 
 ## API Endpoints
 

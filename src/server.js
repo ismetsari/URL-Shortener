@@ -33,6 +33,23 @@ app.get('/', (req, res) => {
 // Redirect route
 app.get('/:shortCode', require('./controllers/url.controller').redirectToUrl);
 
+// Health check endpoints
+app.get('/health/live', (req, res) => {
+  res.status(200).json({ status: 'UP' });
+});
+
+app.get('/health/ready', async (req, res) => {
+  try {
+    // Test database connections
+    await query('SELECT 1');
+    const redis = getRedisClient();
+    await redis.ping();
+    res.status(200).json({ status: 'READY' });
+  } catch (error) {
+    res.status(503).json({ status: 'NOT READY' });
+  }
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
