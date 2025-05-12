@@ -58,9 +58,11 @@ postgresql:
       nodePorts:
         postgresql: 30032
   auth:
-    username: postgres
+    existingSecret: postgres-credentials
+    secretKeys:
+      adminPasswordKey: postgres-password
+      usernameKey: PGUSER
     database: urlshortener
-    password: postgres
   persistence:
     enabled: true
     size: 1Gi
