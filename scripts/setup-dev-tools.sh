@@ -4,15 +4,14 @@ set -e
 echo "Updating system..."
 sudo apt update && sudo apt upgrade -y
 
-# Install Git
-echo "Installing Git..."
-sudo apt install -y git
+# Install required base tools
+echo "Installing base tools: git, curl..."
+sudo apt install -y git curl
 
 # Install Docker
 echo "Installing Docker..."
 sudo apt install -y \
     ca-certificates \
-    curl \
     gnupg \
     lsb-release
 
@@ -32,6 +31,7 @@ sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin d
 
 # Add current user to Docker group
 sudo usermod -aG docker $USER
+sudo systemctl restart docker
 
 # Install kubectl
 echo "Installing kubectl..."
@@ -47,7 +47,7 @@ rm minikube-linux-amd64
 
 # Install Terraform
 echo "Installing Terraform..."
-sudo apt install -y gnupg software-properties-common curl
+sudo apt install -y gnupg software-properties-common
 curl -fsSL https://apt.releases.hashicorp.com/gpg | \
   sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
 
@@ -77,6 +77,22 @@ sudo systemctl start jenkins
 # Install Helm
 echo "Installing Helm..."
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+# Install PostgreSQL
+echo "Installing PostgreSQL..."
+sudo apt install -y postgresql postgresql-contrib
+
+# Enable PostgreSQL
+sudo systemctl enable postgresql
+sudo systemctl start postgresql
+
+# Install Redis
+echo "Installing Redis..."
+sudo apt install -y redis-server
+
+# Enable Redis
+sudo systemctl enable redis-server
+sudo systemctl start redis-server
 
 echo "✅ All tools installed successfully."
 echo "⚠️ You may need to log out and back in to use Docker as a non-root user."

@@ -65,6 +65,10 @@ The application uses a cache-aside (lazy loading) strategy:
 ### Installation
 
   1. Clone the repository
+```bash
+git clone ismetsari/URL-Shortener
+```
+
   2. Go to the scripts directory to install dependencies by using script:
    ```
    cd URL-Shortener/scripts
@@ -145,12 +149,11 @@ expected output will be like:
   Expected output will be like below:
 
 ```json
-{
   ismet@ubuntu:~/repository/URL-Shortener/scripts$ ./test_postgres.sh 
   Expanded display is on.
   -[ RECORD 1 ]+--------------------------------------------------------------------------------------------------
   id           | 1
-  original_url | https://github.com/ismetsari?tab=repositories
+  original_url | https://github.com/ismetsari/flask-application
   short_code   | fyoQaAK
   created_at   | 2025-05-11 23:50:46.522015+00
   expires_at   | 2023-12-31 23:59:59+00
@@ -162,7 +165,6 @@ expected output will be like:
   created_at   | 2025-05-11 23:51:09.718124+00
   expires_at   | 2023-12-31 23:59:59+00
   click_count  | 0
-}
 ```
 
   - Run redis script
