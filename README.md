@@ -10,6 +10,19 @@ A high-performance URL shortener service that uses Redis for caching and Postgre
 - Good for showing DevOps practices
 - Demonstrates basic web service concepts
 
+## Prerequisites
+
+- Git 
+- Terraform 
+- Minikube
+- Jenkins
+- Helm
+- Kubectl
+- Docker
+- curl(testing purposes)
+- Postgresql sudo apt-get install -y postgresql-client
+- Redis-tools sudo apt install -y redis-tools
+
 ## Services
 - **URL Shortener**: Creates 2 endpoints and generates random payloads.
 - **Redis**: Stores the payloads.
@@ -49,19 +62,6 @@ The application uses a cache-aside (lazy loading) strategy:
 
 ## Getting Started
 
-### Prerequisites
-
-- Git 
-- Terraform 
-- Minikube
-- Jenkins
-- Helm
-- Kubectl
-- Docker
-- curl(testing purposes)
-- Postgresql sudo apt-get install -y postgresql-client
-- Redis-tools sudo apt install -y redis-tools
-
 ### Installation
 
   1. Clone the repository
@@ -100,13 +100,12 @@ sudo usermod -aG docker jenkins
 
 ## How to Test Application
 To shorten a URL, send a POST request to /api/urls endpoint:
-Using curl:
-curl -X POST http://localhost:3000/api/urls \
-  -H "Content-Type: application/json" \
-  -d '{"originalUrl": "https://example.com/long-url-to-shorten"}'
-Using Postman or any API client:
+
+1) Using curl:
+curl -X POST http://<minikube-ip>:30031/api/urls \ -H "Content-Type: application/json" \ -d '{"originalUrl": "https://example.com/long-url-to-shorten"}'
+2) Using Postman or any API client:
 Set method to POST
-Set URL to http://localhost:3000/api/urls minikube-ip:port
+Set URL to http://<minikube-ip>:30031/api/urls
 Add header: Content-Type: application/json
 Set request body (JSON)
 
@@ -114,6 +113,64 @@ Set request body (JSON)
   "originalUrl": "https://example.com/long-url-to-shorten",
   "expiresAt": "2023-12-31T23:59:59Z" // optional
 }
+
+expected output will be like:
+
+{
+    "status": "success",
+    "data": {
+        "id": 26,
+        "originalUrl": "https://example-url.com",
+        "shortUrl": "http://<minikube-ip>:30031/6Ez2GxE",
+        "shortCode": "6Ez2GxE",
+        "createdAt": "2025-05-12T17:07:44.973Z",
+        "expiresAt": "2023-12-31T23:59:59Z"
+    }
+}
+
+3) Testing with scripts
+
+  - Navigate to the scripts directory and run test scripts
+  '''bash
+  cd URL-Shortener/scripts
+  '''
+
+  - Run postgre script
+  '''bash
+  ./test_postgre.sh
+  '''
+  Expected output will be like below:
+
+  ismet@ubuntu:~/repository/URL-Shortener/scripts$ ./test_postgres.sh 
+  Expanded display is on.
+  -[ RECORD 1 ]+--------------------------------------------------------------------------------------------------
+  id           | 1
+  original_url | https://github.com/ismetsari?tab=repositories
+  short_code   | fyoQaAK
+  created_at   | 2025-05-11 23:50:46.522015+00
+  expires_at   | 2023-12-31 23:59:59+00
+  click_count  | 0
+  -[ RECORD 2 ]+--------------------------------------------------------------------------------------------------
+  id           | 2
+  original_url | https://github.com/ismetsari
+  short_code   | nH9dib7
+  created_at   | 2025-05-11 23:51:09.718124+00
+  expires_at   | 2023-12-31 23:59:59+00
+  click_count  | 0
+
+  - Run redis script
+  '''bash
+  ./test_redis.sh
+  '''
+  Expected output will be like below:
+  1) "clicks:bEuVjR8"
+  2) "clicks:1WzaHeO"
+  3) "clicks:JscfaSG"
+  4) "testkey"
+  5) "test"
+  6) "url:6Ez2GxE"
+  7) "clicks:W8CKCxV"
+  8) "clicks:_h86gz4"
 
 ## Future Works
 Redis caching strategy:
