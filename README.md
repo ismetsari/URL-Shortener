@@ -110,6 +110,7 @@ curl -X POST http://<minikube-ip>:30031/api/urls \ -H "Content-Type: application
 - Set URL to http://<minikube-ip>:30031/api/urls
 - Add header: Content-Type: application/json
 - Set request body (JSON)
+- Paste below body and send request
 ```json
 {
   "originalUrl": "https://example.com/long-url-to-shorten",
@@ -144,6 +145,7 @@ expected output will be like:
   Expected output will be like below:
 
 ```json
+{
   ismet@ubuntu:~/repository/URL-Shortener/scripts$ ./test_postgres.sh 
   Expanded display is on.
   -[ RECORD 1 ]+--------------------------------------------------------------------------------------------------
@@ -160,6 +162,7 @@ expected output will be like:
   created_at   | 2025-05-11 23:51:09.718124+00
   expires_at   | 2023-12-31 23:59:59+00
   click_count  | 0
+}
 ```
 
   - Run redis script
