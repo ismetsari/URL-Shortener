@@ -171,10 +171,8 @@ systemctl restart docker
 - Restarting services can affect Minikube. Check its status using the **minikube status** command. If it is not running, start it again.
 ```bash
 cd /var/lib/jenkins/workspace/url-shortener/url-shortener/terraform
-terraform init
 terraform apply
 ```
-
 
 8. Now run Jenkins pipeline the build and deployment process will be handled by pipeline.
 
