@@ -66,14 +66,19 @@ The application uses a cache-aside (lazy loading) strategy:
 
   1. Clone the repository
 ```bash
-git clone ismetsari/URL-Shortener
+git clone github.com/ismetsari/url-shortener
 ```
 
   2. Go to the scripts directory to install dependencies by using script:
    ```
-   cd URL-Shortener/scripts
+   cd url-shortener/scripts
    ./setup-dev-tools.sh
    ```
+   Reboot is required after script is executed.
+   If jenkins asks for password use below command to take password
+```bash
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+```
 
   3. Go to Jenkins UI and configure the pipeline
   - If you did not specify any port for Jenkins, you can reach it from http://localhost:8080/
@@ -85,29 +90,101 @@ git clone ismetsari/URL-Shortener
 
 4. Move the repository to the Jenkins workspace. Jenkins crated a dedicated workspace for our project(mentioned in the previous step). To prevent potential permission issues, we will move the project to that workspace.
 ```bash
-sudo mv ~/URL-Shortener /var/lib/jenkins/workspace/URL-Shortener
+sudo mv ~/url-shortener /var/lib/jenkins/workspace/url-shortener
 ```
 5. Ensure that the jenkins user is a member of the docker group. You can verify this by running the command **groups jenkins**. If the jenkins user is not a member, add it using the usermod command.
 ```bash
-sudo usermod -aG docker jenkins
+sudo usermod -aG docker $USER && newgrp docker
+```
+After that restart Jenkins
+```bash
+systemctl restart jenkins
 ```
 
 6. Navigate to the terraform directory to provision minikube cluster:
    ```
-   cd URL-Shortener/terraform
+   cd /var/lib/jenkins/workspace/url-shortener/url-shortener/terraform
    terraform init
    terraform apply
    ```
    If you run project first time you need to run terraform init otherwise terraform apply is enough.
 
-7. Now run Jenkins pipeline the build and deployment process will be handled by pipeline.
+7. Jenkins runs pipelines using the jenkins user. To ensure proper Kubernetes access, the jenkins user must have a correctly configured kubeconfig and certificates. **If these are already set up, you can skip step 7 completely.** If not there are two ways to achieve this:
+
+**IMPORTANT NOTE:** 7.1 is a more robust approach, but it requires some UI configurations. To simplify the project setup for you, I used 7.2, as it only requires a simple copy-paste.
+
+7.1 Storing kubeconfig file as Jenkins credentials (This is the more robust way)
+- Log into Jenkins UI
+- Go to "Manage Jenkins" → "Credentials"
+- Click on the domain where you want to store credentials (typically "global")
+- Click "Add Credentials" in right top corner   
+- From the "Kind" dropdown, select "Secret file"
+- Click "Browse" and upload your kubeconfig file
+- In the "ID" field, enter a meaningful ID like kubeconfig-minikube
+- Click "OK" to save
+- Then change **Deploy to Minikube** stage in Jenkinsfile to below code.
+- You also need to apply same stages for certificates. Do not forget to reference the credentials and add them to kubectl command.
+```bash
+    stage('Deploy to Minikube') {
+      steps {
+        withCredentials([file(credentialsId: 'kubeconfig-minikube', variable: 'KUBECONFIG')]) {
+          sh '''
+          echo "Deployment starting."
+          cd flask-application
+          kubectl --kubeconfig=$KUBECONFIG apply -f k8s/
+          kubectl --kubeconfig=$KUBECONFIG rollout restart deployment flask-application
+          echo "Deployment completed successfully."
+          '''
+        }
+      }
+    }
+```
+7.2 If they exist for another user, **log in to that user** and copy the kubeconfig and certificates to the Jenkins user's target directory.
+```bash
+# Create .kube directory for jenkins user
+sudo mkdir -p /var/lib/jenkins/.kube
+# Copy your config file
+sudo cp ~/.kube/config /var/lib/jenkins/.kube/
+# Change ownership to jenkins user
+sudo chown -R jenkins:jenkins /var/lib/jenkins/.kube/
+# Create directories jor jenkins
+sudo mkdir -p /var/lib/jenkins/.minikube
+# Copy your minikube certificates
+sudo cp -r ~/.minikube/* /var/lib/jenkins/.minikube/
+# Fix the paths in the copied config file
+sudo sed -i "s|$HOME/.minikube|/var/lib/jenkins/.minikube|g" /var/lib/jenkins/.kube/config
+# Set ownership of directories(this is the critical part)
+sudo chown -R jenkins:jenkins /var/lib/jenkins/.minikube
+# Set permissions on all files first
+sudo find /var/lib/jenkins/.minikube -type f -exec chmod 644 {} \;
+sudo find /var/lib/jenkins/.kube -type f -exec chmod 644 {} \;
+# Now set proper permissions on key files
+sudo find /var/lib/jenkins/.minikube -name "*.key" -exec chmod 600 {} \;
+```
+
+- After making these changes restart jenkins and docker services.
+```bash
+systemctl restart jenkins
+systemctl restart docker
+```
+
+- Restarting services can affect Minikube. Check its status using the **minikube status** command. If it is not running, start it again.
+```bash
+cd /var/lib/jenkins/workspace/url-shortener/url-shortener/terraform
+terraform init
+terraform apply
+```
+
+
+8. Now run Jenkins pipeline the build and deployment process will be handled by pipeline.
 
 ## How to Test Application
 To shorten a URL, send a POST request to /api/urls endpoint:
 
 1) Using curl:
 ```bash
-curl -X POST http://<minikube-ip>:30031/api/urls \ -H "Content-Type: application/json" \ -d '{"originalUrl": "https://example.com/long-url-to-shorten"}'
+curl -X POST http://<minikube-ip>:30031/api/urls -H "Content-Type: application/json" -d '{"originalUrl": "https://google.com"}'
+curl -X POST http://<minikube-ip>:30031/api/urls -H "Content-Type: application/json" -d '{"originalUrl": "https://youtube.com"}'
 ```
 2) Using Postman or any API client:
 - Set method to POST
