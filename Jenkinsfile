@@ -24,7 +24,7 @@ pipeline {
                 sh '''
                 echo "Deployment starting."
                 cd /home/ismet/repository/URL-Shortener/helm
-                helm upgrade url-shortener .
+                helm upgrade --install url-shortener .
                 echo "Deployment completed successfully."
                 '''
             }

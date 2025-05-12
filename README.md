@@ -1,6 +1,19 @@
-# URL Shortener Service
+# URL Shortener
 
 A high-performance URL shortener service that uses Redis for caching and PostgreSQL for permanent storage.
+
+## Why Did I Choose This Project?
+
+- Simple and functional
+- Multiple endpoints
+- Includes health check endpoint
+- Good for showing DevOps practices
+- Demonstrates basic web service concepts
+
+## Services
+- **URL Shortener**: Creates 2 endpoints and generates random payloads.
+- **Redis**: Stores the payloads.
+- **PostgreSQL**: Stores the data.
 
 ## Features
 
@@ -46,34 +59,44 @@ The application uses a cache-aside (lazy loading) strategy:
 - Kubectl
 - Docker
 - curl(testing purposes)
-- Programming Language
+- Postgresql sudo apt-get install -y postgresql-client
+- Redis-tools sudo apt install -y redis-tools
 
 ### Installation
 
-1. Clone the repository
-2. Install dependencies:
+  1. Clone the repository
+  2. Go to the scripts directory to install dependencies by using script:
    ```
-   npm install
-   ```
-3. Configure environment variables:
-   ```
-   cp .env.example .env
-   ```
-   Edit `.env` with your configuration
-
-4. Run database migrations:
-   ```
-   npm run migrate
+   cd URL-Shortener/scripts
+   ./setup-dev-tools.sh
    ```
 
-5. Start the server:
+  3. Go to Jenkins UI and configure the pipeline
+  - If you did not specify any port for Jenkins, you can reach it from http://localhost:8080/
+  - Click on "New Item" 
+  - Name pipeline as url-shortener(this is important since the name is used in commands)
+  - Select "Pipeline" as item type and click "OK"
+  - In the opened "Configuration" page, copy Jenkinsfile and paste it to script part and click "Save"
+  - Click the "Build Now" button for the url-shortener. The build will fail, but this step is necessary for Jenkins to create the workspace mentioned in the next step. You can also create directory manually but this is easier.
+
+4. Move the repository to the Jenkins workspace. Jenkins crated a dedicated workspace for our project(mentioned in the previous step). To prevent potential permission issues, we will move the project to that workspace.
+```bash
+sudo mv ~/URL-Shortener /var/lib/jenkins/workspace/URL-Shortener
+```
+5. Ensure that the jenkins user is a member of the docker group. You can verify this by running the command **groups jenkins**. If the jenkins user is not a member, add it using the usermod command.
+```bash
+sudo usermod -aG docker jenkins
+```
+
+6. Navigate to the terraform directory to provision minikube cluster:
    ```
-   npm start
+   cd URL-Shortener/terraform
+   terraform init
+   terraform apply
    ```
-   Or for development:
-   ```
-   npm run dev
-   ```
+   If you run project first time you need to run terraform init otherwise terraform apply is enough.
+
+7. Now run Jenkins pipeline the build and deployment process will be handled by pipeline.
 
 ## How to Test Application
 To shorten a URL, send a POST request to /api/urls endpoint:

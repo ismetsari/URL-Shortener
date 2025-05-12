@@ -38,7 +38,7 @@ app:
           name: url-shortener-redis
           key: redis-password
     - name: BASE_URL
-      value: "http://localhost:3000"
+      value: "http://192.168.49.2:30031"
     - name: SHORTCODE_LENGTH
       value: "7"
 
@@ -46,6 +46,7 @@ service:
   type: NodePort
   port: 3000
   targetPort: 3000
+  nodePort: 30031
 
 postgresql:
   enabled: true
@@ -54,11 +55,12 @@ postgresql:
   primary:
     service:
       type: NodePort
-      nodePort: 30032
+      nodePorts:
+        postgresql: 30032
   auth:
     username: postgres
-    password: postgres
     database: urlshortener
+    password: postgres
   persistence:
     enabled: true
     size: 1Gi
@@ -71,7 +73,8 @@ redis:
   master:
     service:
       type: NodePort
-      nodePort: 30033
+      nodePorts:
+        redis: 30033
   auth:
     password: ""
   persistence:
