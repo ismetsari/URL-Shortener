@@ -6,3 +6,4 @@ type: Opaque
 data:
   PGUSER: cG9zdGdyZXM=                 
   PGHOST: dXJsLXNob3J0ZW5lci1wb3N0Z3Jlc3Fs 
+  postgres-password: cG9zdGdyZXM=
