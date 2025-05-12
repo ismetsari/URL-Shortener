@@ -22,7 +22,7 @@ app:
     - name: PGPASSWORD
       valueFrom:
         secretKeyRef:
-          name: url-shortener-postgresql
+          name: postgres-credentials
           key: postgres-password
     - name: PGDATABASE
       value: "urlshortener"
