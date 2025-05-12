@@ -83,7 +83,7 @@ curl -X POST http://localhost:3000/api/urls \
   -d '{"originalUrl": "https://example.com/long-url-to-shorten"}'
 Using Postman or any API client:
 Set method to POST
-Set URL to http://localhost:3000/api/urls
+Set URL to http://localhost:3000/api/urls minikube-ip:port
 Add header: Content-Type: application/json
 Set request body (JSON)
 

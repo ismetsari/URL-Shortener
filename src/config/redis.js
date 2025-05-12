@@ -5,7 +5,7 @@ let redisClient;
 const connectToRedis = async () => {
   try {
     redisClient = redis.createClient({
-      url: `redis://${process.env.REDIS_PASSWORD ? process.env.REDIS_PASSWORD + '@' : ''}${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`
+      url: `redis://default:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`
     });
 
     redisClient.on('error', (err) => {

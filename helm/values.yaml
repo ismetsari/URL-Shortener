@@ -1,0 +1,73 @@
+app:
+  image:
+    repository: url-shortener-app
+    tag: "latest"
+    pullPolicy: Never
+  port: 3000
+  env:
+    - name: PORT
+      value: "3000"
+    - name: NODE_ENV
+      value: "development"
+    - name: PGHOST
+      value: "url-shortener-postgresql"
+    - name: PGUSER
+      value: "postgres"
+    - name: PGPASSWORD
+      value: "postgres"
+    - name: PGDATABASE
+      value: "urlshortener"
+    - name: PGPORT
+      value: "5432"
+    - name: REDIS_HOST
+      value: "url-shortener-redis-master"
+    - name: REDIS_PORT
+      value: "6379"
+    - name: REDIS_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: url-shortener-redis
+          key: redis-password
+    - name: BASE_URL
+      value: "http://localhost:3000"
+    - name: SHORTCODE_LENGTH
+      value: "7"
+
+service:
+  type: NodePort
+  port: 3000
+  targetPort: 3000
+
+postgresql:
+  enabled: true
+  image:
+    tag: 14.11.0-debian-11-r0
+  auth:
+    username: postgres
+    password: postgres
+    database: urlshortener
+  persistence:
+    enabled: true
+    size: 1Gi
+
+redis:
+  architecture: standalone
+  enabled: true
+  image:
+    tag: 7.2.4-debian-11-r0
+  auth:
+    password: ""
+  persistence:
+    enabled: true
+    size: 1Gi
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: [] 
