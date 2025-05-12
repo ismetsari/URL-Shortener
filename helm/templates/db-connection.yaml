@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-credentials
+type: Opaque
+data:
+  PGUSER: cG9zdGdyZXM=                 
+  PGHOST: dXJsLXNob3J0ZW5lci1wb3N0Z3Jlc3Fs 

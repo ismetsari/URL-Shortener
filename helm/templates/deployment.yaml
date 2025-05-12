@@ -14,6 +14,13 @@ spec:
       labels:
         {{- include "url-shortener.selectorLabels" . | nindent 8 }}
     spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox
+          command: ['sh', '-c', 'until nc -z url-shortener-postgresql 5432; do echo waiting for postgres; sleep 2; done;']
+        - name: wait-for-redis
+          image: busybox
+          command: ['sh', '-c', 'until nc -z url-shortener-redis-master 6379; do echo waiting for redis; sleep 2; done;']
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.app.image.repository }}:{{ .Values.app.image.tag }}"

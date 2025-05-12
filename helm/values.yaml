@@ -10,11 +10,20 @@ app:
     - name: NODE_ENV
       value: "development"
     - name: PGHOST
-      value: "url-shortener-postgresql"
+      valueFrom:
+        secretKeyRef:
+          name: postgres-credentials
+          key: PGHOST
     - name: PGUSER
-      value: "postgres"
+      valueFrom:
+        secretKeyRef:
+          name: postgres-credentials
+          key: PGUSER
     - name: PGPASSWORD
-      value: "postgres"
+      valueFrom:
+        secretKeyRef:
+          name: url-shortener-postgresql
+          key: postgres-password
     - name: PGDATABASE
       value: "urlshortener"
     - name: PGPORT
@@ -42,6 +51,10 @@ postgresql:
   enabled: true
   image:
     tag: 14.11.0-debian-11-r0
+  primary:
+    service:
+      type: NodePort
+      nodePort: 30032
   auth:
     username: postgres
     password: postgres
@@ -55,6 +68,10 @@ redis:
   enabled: true
   image:
     tag: 7.2.4-debian-11-r0
+  master:
+    service:
+      type: NodePort
+      nodePort: 30033
   auth:
     password: ""
   persistence:
