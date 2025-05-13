@@ -149,9 +149,12 @@ The application uses a cache-aside (lazy loading) strategy:
 
 ### Installation
 
-1. Clone the repository
+1. All dependencies will be installed by the script. However, to clone the repository, Git must be installed. If it's not already installed, you can do so using the following command:
 ```bash
-git clone github.com/ismetsari/url-shortener
+sudo apt-get install git
+```
+```bash
+git clone https://github.com/ismetsari/url-shortener
 ```
 
 2. Navigate to the scripts directory and run the installation script to install all required dependencies:
@@ -179,7 +182,7 @@ sudo mv ~/url-shortener /var/lib/jenkins/workspace/url-shortener
 ```
 5. Ensure that the jenkins user is a member of the docker group. You can verify this by running the command **groups jenkins**. If the jenkins user is not a member, add it using the usermod command.
 ```bash
-sudo usermod -aG docker $USER && newgrp docker
+sudo usermod -aG docker jenkins && newgrp docker
 ```
 After that restart Jenkins
 ```bash
@@ -375,10 +378,10 @@ Integrate monitoring tools like Prometheus and Grafana for real-time performance
 
 ## Performance Optimizations
 
-1. **Redis Caching**: Reduces database load for popular URLs
-2. **Batch Click Processing**: Accumulates click counts in Redis and periodically flushes to PostgreSQL
-3. **Connection Pooling**: Optimizes database connections
-4. **Asynchronous Analytics**: Records click data without blocking the response
+**Redis Caching**: Reduces database load for popular URLs
+**Batch Click Processing**: Accumulates click counts in Redis and periodically flushes to PostgreSQL
+**Connection Pooling**: Optimizes database connections
+**Asynchronous Analytics**: Records click data without blocking the response
 
 ## License
 

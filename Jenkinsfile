@@ -11,7 +11,7 @@ pipeline {
             steps {
                 sh '''
                 echo "Starting Docker Build"
-                cd /home/ismet/repository/URL-Shortener
+                cd /var/lib/jenkins/workspace/url-shortener/url-shortener
                 eval $(minikube docker-env)
                 docker build --no-cache -t $DOCKER_IMAGE .
                 echo "Docker build completed successfully."
@@ -23,7 +23,7 @@ pipeline {
             steps {
                 sh '''
                 echo "Deployment starting."
-                cd /home/ismet/repository/URL-Shortener/helm
+                cd /var/lib/jenkins/workspace/url-shortener/url-shortener/helm
                 helm upgrade --install url-shortener .
                 echo "Deployment completed successfully."
                 '''
