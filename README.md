@@ -18,14 +18,14 @@ A high-performance URL shortener service that uses Redis for caching and Postgre
 - Helm
 - Kubectl
 - Docker
-- curl(testing purposes)
-- Postgresql sudo apt-get install -y postgresql-client
-- Redis-tools sudo apt install -y redis-tools
+- Curl
+- Postgresql
+- Redis
 
 ## Services
-- **URL Shortener**: Creates 2 endpoints and generates random payloads.
-- **Redis**: Stores the payloads.
-- **PostgreSQL**: Stores the data.
+- **URL Shortener**: Provides an API to create shortened URLs and manage their lifecycle, including expiration and analytics.
+- **Redis**: Acts as an in-memory data store for caching URL mappings and click counts to enhance performance and reduce database load.
+- **PostgreSQL**: Serves as the primary data store for persistent storage of URL mappings and analytics data.
 
 ## API Endpoints
 
@@ -98,10 +98,6 @@ url-shortener/
 │   ├── test_postgres.sh      # Script to test PostgreSQL setup
 │   └── test_redis.sh         # Script to test Redis setup
 ├── terraform/                # Infrastructure as code for provisioning resources using Terraform
-│   ├── terraform.tfstate     # Terraform state file
-│   ├── .terraform.lock.hcl   # Terraform lock file
-│   ├── .terraform/           # Terraform modules and plugins
-│   │   └── providers/        # Terraform providers
 │   └── main.tf               # Main Terraform configuration
 ├── helm/                     # Helm charts for Kubernetes deployment
 │   ├── values.yaml           # Helm values configuration
@@ -142,12 +138,6 @@ url-shortener/
 - PostgreSQL for persistent storage
 - Click tracking and analytics
 - Batch processing of click counts for performance optimization
-
-## Tech Stack
-
-- Node.js with Express
-- Redis for caching and rate limiting
-- PostgreSQL for persistent storage
 
 ## Cache Strategy
 
@@ -287,14 +277,16 @@ cd /var/lib/jenkins/workspace/url-shortener/url-shortener/scripts/db_backup
 ```
 
 ## How to Test Application
-To shorten a URL, send a POST request to /api/urls endpoint:
+1) To shorten a URL, start by sending a POST request to the /api/urls endpoint. After that, run the test scripts to verify the results in Redis and PostgreSQL.
 
-1) Using curl:
+There are two ways to send POST requests
+
+1.1 Using curl(Don't forget to replace the <minikube-ip> in the POST request with your actual Minikube IP):
 ```bash
 curl -X POST http://<minikube-ip>:30031/api/urls -H "Content-Type: application/json" -d '{"originalUrl": "https://google.com"}'
 curl -X POST http://<minikube-ip>:30031/api/urls -H "Content-Type: application/json" -d '{"originalUrl": "https://youtube.com"}'
 ```
-2) Using Postman or any API client:
+1.2 Using Postman or any API client(Don't forget to replace the <minikube-ip> in the URL with your actual Minikube IP):
 - Set method to POST
 - Set URL to http://<minikube-ip>:30031/api/urls
 - Add header: Content-Type: application/json
@@ -319,14 +311,14 @@ expected output will be like:
         "expiresAt": "2023-12-31T23:59:59Z"
     }
 ```
-3) Testing with scripts
+2) Testing with scripts
 
-  - Navigate to the scripts directory and execute the test scripts.
+  - Navigate to the scripts directory
 ```bash
   cd /var/lib/jenkins/workspace/url-shortener/url-shortener/scripts
 ```
 
-  - Run postgre script.
+  - Run postgre test script.
 ```bash
   ./test_postgre.sh
 ```
@@ -352,33 +344,33 @@ expected output will be like:
   click_count  | 0
 ```
 
-  - Run redis script
+  - Run redis test script
 ```bash
   ./test_redis.sh
 ```
 
   Expected output will be like below:
+```json
   1) "clicks:bEuVjR8"
   2) "clicks:1WzaHeO"
   3) "clicks:JscfaSG"
   4) "url:6Ez2GxE"
   5) "clicks:W8CKCxV"
   6) "clicks:_h86gz4"
+```
 
 ## Future Works
 
-Redis caching strategy:
-Current implementation assumes single Redis instance
-Might need adjustment for Redis Sentinel or cluster deployments
+**Redis caching strategy**: Current implementation assumes single Redis instance. Might need adjustment for Redis Sentinel or cluster deployments
 
-High availability considerations:
+**High availability considerations**:
 The app can horizontally scale (it's stateless)
 Database connections have pooling but may need tuning for your scale
 
-Security Enhancements:
+**Security Enhancements**:
 Implement additional security measures such as rate limiting, IP whitelisting, and HTTPS to protect the service from abuse and ensure data privacy.
 
-Monitoring and Logging:
+**Monitoring and Logging**:
 Integrate monitoring tools like Prometheus and Grafana for real-time performance tracking and alerting. Enhance logging to capture more detailed information for debugging and analytics.
 
 ## Performance Optimizations
