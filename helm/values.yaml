@@ -38,7 +38,10 @@ app:
           name: url-shortener-redis
           key: redis-password
     - name: BASE_URL
-      value: "http://192.168.49.2:30031"
+      valueFrom:
+        configMapKeyRef:
+          name: app-config
+          key: BASE_URL
     - name: SHORTCODE_LENGTH
       value: "7"
 
