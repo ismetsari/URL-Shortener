@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+spec:
+  schedule: "0 3 * * *"  # Every day at 3 AM
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: postgres-backup
+            image: bitnami/postgresql:14
+            env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: postgres-password
+            command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              echo "📦 Starting PostgreSQL backup..."
+              mkdir -p /backups
+              BACKUP_FILE=/backups/db_backup_$(date +%F).sql.gz
+              echo "🔄 Attempting pg_dump to $BACKUP_FILE ..."
+              if pg_dump -h url-shortener-postgresql -U postgres -d urlshortener | gzip > "$BACKUP_FILE"; then
+                echo "✅ Backup complete:"
+                ls -lh "$BACKUP_FILE"
+              else
+                echo "❌ pg_dump failed"
+              fi
+            volumeMounts:
+            - name: backup-storage
+              mountPath: /backups
+          restartPolicy: OnFailure
+          volumes:
+          - name: backup-storage
+            persistentVolumeClaim:
+              claimName: postgres-backup-pvc

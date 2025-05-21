@@ -273,7 +273,11 @@ terraform apply
 kubectl get po
 ```
 
-10. We use a setup script to configure daily database backups. This script automatically handles the creation of the cronjob and places the backup script in the appropriate location. Simply running the setup script is sufficient to enable daily backups.
+10) There are two ways to handle daily backups.
+
+10.1 Running the pipeline will automatically create a Kubernetes CronJob, which will manage the daily backups.
+
+10.2 A setup script is used to configure daily database backups. This script automatically handles the creation of the cronjob and places the backup script in the appropriate location. Simply running the setup script is sufficient to enable daily backups.
 ```
 cd /var/lib/jenkins/workspace/url-shortener/url-shortener/scripts/db_backup
 ./setup.sh
